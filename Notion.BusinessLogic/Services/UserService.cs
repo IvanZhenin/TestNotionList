@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Notion.BaseModule.Interfaces;
 using Notion.DataAccess.Data;
+using Notion.DataAccess.Exceptions;
 using Notion.DataAccess.Models;
 using System.Linq;
 
@@ -26,7 +27,7 @@ namespace Notion.BusinessLogic.Services
             {
                 var userExists = await _context.Users.AsNoTracking().AnyAsync(u => u.Login == login);
                 if (userExists)
-                    throw new Exception();
+                    throw new UserLoginIsUnavailableException(login);
 
                 var newUser = new User
                 {
@@ -44,6 +45,17 @@ namespace Notion.BusinessLogic.Services
             }
         }
 
+        public async Task<User> GetUserByIdAsync(int userId)
+        {
+            if (!_cache.TryGet(USER_KEY + userId, out User? user))
+            {
+                user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                await _cache.SetAsync(USER_KEY + userId, user, TimeSpan.FromMinutes(1));
+            }
+
+            return user ?? throw new UserByIdNotFoundException(userId);
+        }
+
         public async Task<User> GetUserByLoginAsync(string userLogin)
         {
             if (!_cache.TryGet(USER_KEY + userLogin, out User? user))
@@ -52,7 +64,7 @@ namespace Notion.BusinessLogic.Services
                 await _cache.SetAsync(USER_KEY + userLogin, user, TimeSpan.FromMinutes(1));
             }
 
-            return user ?? throw new Exception();
+            return user ?? throw new UserByLoginNotFoundException(userLogin);
         }
 
         public async Task<bool> CheckUserDataAsync(string userLogin, string userPassword)

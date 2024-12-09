@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Notion.BaseModule.Interfaces;
 using Notion.DataAccess.Data;
+using Notion.DataAccess.Exceptions;
 using Notion.DataAccess.Models;
 using System.Linq;
 
@@ -18,17 +19,17 @@ namespace Notion.BusinessLogic.Services
             _cache = cache;
         }
 
-        public async Task<UserNotion> AddNotionAsync(int userId, string text)
+        public async Task<UserNotion> AddNotionAsync(string userLogin, string text)
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
-                    ?? throw new Exception();
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == userLogin)
+                    ?? throw new UserByLoginNotFoundException(userLogin);
 
                 var newNotion = new UserNotion
                 {
                     Text = text,
-                    UserId = userId,
+                    UserId = user.Id,
                     User = user,
                 };
 
@@ -50,7 +51,7 @@ namespace Notion.BusinessLogic.Services
             try
             {
                 var notion = await _context.UserNotions.FirstOrDefaultAsync(u => u.Id == notionId)
-                    ?? throw new Exception();
+                    ?? throw new UserNotionNotFoundException();
 
                 notion.IsComplited = isComplited ?? notion.IsComplited;
                 notion.Text = newText ?? notion.Text;
@@ -85,16 +86,16 @@ namespace Notion.BusinessLogic.Services
             }
         }
 
-        public async Task<IEnumerable<UserNotion>> GetNotionListByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserNotion>> GetNotionListByUserLoginAsync(string userLogin)
         {
-            if (!_cache.TryGet(NOTION_LIST_KEY + userId, out List<UserNotion>? notions) 
+            if (!_cache.TryGet(NOTION_LIST_KEY + userLogin, out List<UserNotion>? notions) 
                 || notions == null)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
-                    ?? throw new Exception();
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == userLogin)
+                    ?? throw new UserByLoginNotFoundException(userLogin);
 
-                notions = await _context.UserNotions.AsNoTracking().Where(n => n.UserId == userId).ToListAsync();
-                await _cache.SetAsync(NOTION_LIST_KEY + userId, notions, TimeSpan.FromMinutes(1));
+                notions = await _context.UserNotions.AsNoTracking().Where(n => n.UserId == user.Id).ToListAsync();
+                await _cache.SetAsync(NOTION_LIST_KEY + userLogin, notions, TimeSpan.FromMinutes(1));
             }
 
             return notions;
