@@ -45,17 +45,6 @@ namespace Notion.BusinessLogic.Services
             }
         }
 
-        public async Task<User> GetUserByIdAsync(int userId)
-        {
-            if (!_cache.TryGet(USER_KEY + userId, out User? user))
-            {
-                user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-                await _cache.SetAsync(USER_KEY + userId, user, TimeSpan.FromMinutes(1));
-            }
-
-            return user ?? throw new UserByIdNotFoundException(userId);
-        }
-
         public async Task<User> GetUserByLoginAsync(string userLogin)
         {
             if (!_cache.TryGet(USER_KEY + userLogin, out User? user))
