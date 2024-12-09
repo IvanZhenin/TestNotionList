@@ -15,7 +15,6 @@ service UserNotionManager {
 }
 
 message GetUserNotionsRequest {
-  int32 userId = 1;
 }
 
 message GetUserNotionsResponce{
@@ -30,7 +29,6 @@ message UserNotion {
 }
 
 message AddUserNotionRequest{
-	int32 userId = 1;
 	string text = 2;
 }
 
