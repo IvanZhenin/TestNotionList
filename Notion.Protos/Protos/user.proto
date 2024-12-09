@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option csharp_namespace = "Notion.Protos";
+
+package user;
+
+service UserManager {
+  rpc GetUser(GetUserRequest) returns (GetUserResponce);
+
+  rpc CheckUser(CheckUserRequest) returns (CheckUserResponce);
+
+  rpc CreateUser (AddUserRequest) returns (AddUserResponce);
+}
+
+message GetUserRequest {
+  string login = 1;
+}
+
+message GetUserResponce {
+  int32 userId = 1;
+  string login = 2;
+}
+
+message CheckUserRequest{
+	string login = 1;
+	string password = 2;
+}
+
+message CheckUserResponce{
+	bool isValid = 1;
+}
+
+message AddUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message AddUserResponce {
+  int32 userId = 1;
+  string login = 2;
+}

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Notion.BusinessLogic\Notion.BusinessLogic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\Notion.Protos\Protos\user.proto" GrpcSerivce="Server" />
+    <Protobuf Include="..\Notion.Protos\Protos\user-notion.proto" GrpcSerivce="Server" />
+  </ItemGroup>
+  
+</Project>

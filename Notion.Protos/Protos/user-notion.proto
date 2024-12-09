@@ -1,0 +1,62 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+option csharp_namespace = "Notion.Protos";
+
+package userNotion;
+
+service UserNotionManager {
+  rpc GetUserNotions(GetUserNotionsRequest) returns (GetUserNotionsResponce);
+
+  rpc DeleteUserNotion(DeleteUserNotionRequest) returns(DeleteUserNotionResponce);
+
+  rpc AddUserNotion(AddUserNotionRequest) returns (AddUserNotionResponce);
+
+  rpc ChangeUserNotion(ChangeUserNotionRequest) returns (ChangeUserNotionResponce);
+}
+
+message GetUserNotionsRequest {
+  int32 userId = 1;
+}
+
+message GetUserNotionsResponce{
+	repeated UserNotion notions = 1;
+}
+
+message UserNotion {
+  string notionId = 1;
+  string text = 2;
+  bool isCompleted = 3;
+  string dateCreate = 4;
+}
+
+message AddUserNotionRequest{
+	int32 userId = 1;
+	string text = 2;
+}
+
+message AddUserNotionResponce{
+	string notionId = 1;
+	string text = 2;
+	bool isCompleted = 3;
+	string dateCreate = 4;
+}
+
+message DeleteUserNotionRequest{
+	string notionId = 1;
+}
+
+message DeleteUserNotionResponce{
+}
+
+message ChangeUserNotionRequest{
+	string notionId = 1;
+	google.protobuf.BoolValue isCompleted = 2;
+	google.protobuf.StringValue text = 3;
+}
+
+message ChangeUserNotionResponce{
+	string notionId = 1;
+	string text = 2;
+	bool isCompleted = 3;
+	string dateCreate = 4;
+}
