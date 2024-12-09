@@ -7,9 +7,18 @@ package user;
 service UserManager {
   rpc GetUser(GetUserRequest) returns (GetUserResponce);
 
-  rpc CheckUser(CheckUserRequest) returns (CheckUserResponce);
+  rpc AuthUser(AuthUserRequest) returns (AuthUserResponce);
 
   rpc CreateUser (AddUserRequest) returns (AddUserResponce);
+}
+
+message AuthUserRequest{
+	string login = 1;
+	string password = 2;
+}
+
+message AuthUserResponce{
+	string token = 1;
 }
 
 message GetUserRequest {
@@ -19,15 +28,6 @@ message GetUserRequest {
 message GetUserResponce {
   int32 userId = 1;
   string login = 2;
-}
-
-message CheckUserRequest{
-	string login = 1;
-	string password = 2;
-}
-
-message CheckUserResponce{
-	bool isValid = 1;
 }
 
 message AddUserRequest {
