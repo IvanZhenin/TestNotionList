@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Notion.BaseModule.Interfaces;
 using Notion.BusinessLogic.Services;
 using Notion.DataAccess.Data;
 using Notion.GrpcServer.Services;
 using StackExchange.Redis;
+using System.Text;
 
 namespace Notion.GrpcService
 {
@@ -15,6 +18,19 @@ namespace Notion.GrpcService
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             // Add services to the container.
             builder.Services.AddGrpc();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(config["Jwt:key"] ?? throw new Exception()))
+                };
+            });
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<INotionService, UserNotionService>();

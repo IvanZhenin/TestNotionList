@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using Notion.BaseModule.Interfaces;
 using Notion.Protos;
+using System.Security.Claims;
 
 namespace Notion.GrpcServer.Services
 {
@@ -18,7 +19,11 @@ namespace Notion.GrpcServer.Services
         public override async Task<GetUserNotionsResponce> GetUserNotions(GetUserNotionsRequest request,
             ServerCallContext context)
         {
-            var notions = await _notionService.GetNotionListByUserIdAsync(request.UserId);
+            var userIdClaim = (context.GetHttpContext()?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value) 
+                ?? throw new RpcException(new Status(StatusCode.Unauthenticated, "Unauthorized"));
+
+            var userId = Convert.ToInt32(userIdClaim);
+            var notions = await _notionService.GetNotionListByUserIdAsync(userId);
 
             var notionResponce = new GetUserNotionsResponce
             {
@@ -40,7 +45,12 @@ namespace Notion.GrpcServer.Services
         public override async Task<AddUserNotionResponce> AddUserNotion(AddUserNotionRequest request,
             ServerCallContext context)
         {
-            var newNotion = await _notionService.AddNotionAsync(request.UserId, request.Text);
+            var userIdClaim = (context.GetHttpContext()?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value) 
+                ?? throw new RpcException(new Status(StatusCode.Unauthenticated, "Unauthorized"));
+
+            var userId = Convert.ToInt32(userIdClaim);
+
+            var newNotion = await _notionService.AddNotionAsync(userId, request.Text);
 
             var notionResponce = new AddUserNotionResponce
             {
