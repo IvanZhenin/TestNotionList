@@ -95,7 +95,7 @@ namespace Notion.BusinessLogic.Services
                     ?? throw new UserByLoginNotFoundException(userLogin);
 
                 notions = await _context.UserNotions.AsNoTracking().Where(n => n.UserId == user.Id).ToListAsync();
-                await _cache.SetAsync(NOTION_LIST_KEY + userLogin, notions, TimeSpan.FromMinutes(1));
+                await _cache.SetAsync(NOTION_LIST_KEY + user.Id, notions, TimeSpan.FromMinutes(1));
             }
 
             return notions;
