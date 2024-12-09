@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Notion.BaseModule.Interfaces;
+using Notion.DataAccess.Exceptions;
 using Notion.Protos;
 
 namespace Notion.GrpcServer.Services
@@ -22,49 +23,82 @@ namespace Notion.GrpcServer.Services
         public async override Task<GetUserResponce> GetUser(GetUserRequest request,
             ServerCallContext context)
         {
-            var user = await _userService.GetUserByLoginAsync(request.Login);
-
-            var userResponce = new GetUserResponce
+            try
             {
-                UserId = user.Id,
-                Login = request.Login,
-            };
+                var user = await _userService.GetUserByLoginAsync(request.Login);
 
-            return userResponce;
+                var userResponce = new GetUserResponce
+                {
+                    UserId = user.Id,
+                    Login = request.Login,
+                };
+
+                return userResponce;
+            }
+            catch (UserByLoginNotFoundException ex)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "Неизвестная ошибка: " + ex.Message));
+            }
         }
 
         public async override Task<AddUserResponce> CreateUser(AddUserRequest request,
             ServerCallContext context)
         {
-            var newUser = await _userService.CreateUserAsync(request.Login, request.Password);
-
-            var userResponce = new AddUserResponce
+            try
             {
-                UserId = newUser.Id,
-                Login = newUser.Login,
-            };
+                var newUser = await _userService.CreateUserAsync(request.Login, request.Password);
 
-            return userResponce;
+                var userResponce = new AddUserResponce
+                {
+                    UserId = newUser.Id,
+                    Login = newUser.Login,
+                };
+
+                return userResponce;
+            }
+            catch (UserLoginIsUnavailableException ex)
+            {
+                throw new RpcException(new Status(StatusCode.AlreadyExists, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "Неизвестная ошибка: " + ex.Message));
+            }
         }
 
         public async override Task<AuthUserResponce> AuthUser(AuthUserRequest request, ServerCallContext context)
         {
-            var user = await _userService.GetUserByLoginAsync(request.Login);
-
-            var checkUserData = await _userService.CheckUserDataAsync(request.Login, request.Password);
-
-            if (checkUserData)
+            try
             {
-                var authUserResponce = new AuthUserResponce
+                var user = await _userService.GetUserByLoginAsync(request.Login);
+
+                var checkUserData = await _userService.CheckUserDataAsync(request.Login, request.Password);
+
+                if (checkUserData)
                 {
-                    Token = _jwtProvider.GenerateToken(user.Id, user.Login)
-                };
+                    var authUserResponce = new AuthUserResponce
+                    {
+                        Token = _jwtProvider.GenerateToken(user.Id, user.Login)
+                    };
 
-                return authUserResponce;
+                    return authUserResponce;
+                }
+                else
+                {
+                    throw new RpcException(new Status(StatusCode.Unauthenticated, "Неверные данные для авторизации"));
+                }
             }
-            else
+            catch (UserByLoginNotFoundException ex)
             {
-                throw new Exception();
+                throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "Неизвестная ошибка: " + ex.Message));
             }
         }
     }
