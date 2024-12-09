@@ -73,7 +73,7 @@ namespace Notion.BusinessLogic.Services
             try
             {
                 var notion = await _context.UserNotions.FirstOrDefaultAsync(u => u.Id == notionId)
-                    ?? throw new Exception();
+                    ?? throw new UserNotionNotFoundException();
 
                 _context.UserNotions.Remove(notion);
                 await _context.SaveChangesAsync();
