@@ -1,0 +1,20 @@
+﻿@page
+@model Notion.Client.Pages.Authentication.LoginModel
+
+<link href="css/LoginStyle.css" rel="stylesheet" />
+
+<h3>Login</h3>
+
+<form method="post">
+    <div>
+        <label for="userlogin">Логин</label>
+        <input id="userlogin" name="UserLogin" type="text" required />
+    </div>
+    <div>
+        <label for="userpassword">Пароль</label>
+        <input id="userpassword" name="UserPassword" type="password" required />
+    </div>
+    <button type="submit">Login</button>
+</form>
+
+<p>Don't have an account? <a asp-page="/Authentication/Registration">Register here</a></p>

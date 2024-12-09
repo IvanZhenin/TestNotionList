@@ -1,0 +1,22 @@
+﻿@page
+@model Notion.Client.Pages.Notions.CreateNewNotionModel
+
+<h3>Создать новую заметку</h3>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="NotionText" class="form-label">Текст заметки</label>
+                    <textarea class="form-control" id="NotionText" name="NotionText" rows="5" required>@Model.NotionText</textarea>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+
+                    <a href="/Notions/MyNotions" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

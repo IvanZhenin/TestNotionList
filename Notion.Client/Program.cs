@@ -1,4 +1,5 @@
 using Grpc.Net.Client;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Notion.Protos;
 
 namespace Notion.Client
@@ -16,6 +17,14 @@ namespace Notion.Client
             builder.Services.AddSingleton(new UserManager.UserManagerClient(grpcChannel));
             builder.Services.AddSingleton(new UserNotionManager.UserNotionManagerClient(grpcChannel));
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Authentication/Login";
+                    options.AccessDeniedPath = "/Authentication/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -30,6 +39,11 @@ namespace Notion.Client
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.MapGet("/", async context =>
+            {
+                context.Response.Redirect("/Authentication/Login");
+            });
 
             app.UseAuthorization();
 

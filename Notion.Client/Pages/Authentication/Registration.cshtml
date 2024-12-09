@@ -1,0 +1,24 @@
+﻿@page
+@model Notion.Client.Pages.Authentication.RegistrationModel
+
+<link href="css/LoginStyle.css" rel="stylesheet" />
+
+<h3>Registration</h3>
+
+<form method="post">
+    <div>
+        <label for="username">Логин</label>
+        <input id="username" name="UserLogin" type="text" required />
+    </div>
+    <div>
+        <label for="password">Пароль</label>
+        <input id="password" name="UserPassword" type="password" required />
+    </div>
+    <div>
+        <label for="confirmPassword">Повторите пароль</label>
+        <input id="confirmPassword" name="ConfirmUserPassword" type="password" required />
+    </div>
+    <button type="submit">Register</button>
+</form>
+
+<p>Already have an account? <a asp-page="/Authentication/Login">Go to Login</a></p>
