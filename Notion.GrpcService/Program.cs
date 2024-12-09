@@ -37,6 +37,7 @@ namespace Notion.GrpcService
             });
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
             builder.Services.AddSingleton<ICacheService, RedisCacheService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<INotionService, UserNotionService>();

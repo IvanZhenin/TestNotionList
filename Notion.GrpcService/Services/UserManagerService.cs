@@ -7,11 +7,16 @@ namespace Notion.GrpcServer.Services
     public class UserManagerService : UserManager.UserManagerBase
     {
         private readonly ILogger<UserManagerService> _logger;
+        private readonly IJwtProvider _jwtProvider;
         private readonly IUserService _userService;
-        public UserManagerService(ILogger<UserManagerService> logger, IUserService userService)
+        public UserManagerService(
+            ILogger<UserManagerService> logger, 
+            IUserService userService,
+            IJwtProvider jwtProvider)
         {
             _logger = logger;
             _userService = userService;
+            _jwtProvider = jwtProvider;
         }
 
         public async override Task<GetUserResponce> GetUser(GetUserRequest request,
@@ -42,14 +47,25 @@ namespace Notion.GrpcServer.Services
             return userResponce;
         }
 
-        public override async Task<CheckUserResponce> CheckUser(CheckUserRequest request,
-            ServerCallContext context)
+        public async override Task<AuthUserResponce> AuthUser(AuthUserRequest request, ServerCallContext context)
         {
+            var user = await _userService.GetUserByLoginAsync(request.Login);
+
             var checkUserData = await _userService.CheckUserDataAsync(request.Login, request.Password);
 
-            var userResponce = new CheckUserResponce { IsValid = checkUserData };
+            if (checkUserData)
+            {
+                var authUserResponce = new AuthUserResponce
+                {
+                    Token = _jwtProvider.GenerateToken(user.Id, user.Login)
+                };
 
-            return userResponce;
+                return authUserResponce;
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
     }
 }
