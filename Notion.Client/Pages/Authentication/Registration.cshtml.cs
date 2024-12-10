@@ -27,7 +27,8 @@ namespace Notion.Client.Pages.Authentication
 
         public IActionResult OnGet()
         {
-            if (User.Identity?.IsAuthenticated == true)
+            var jwtToken = Request.Cookies["Jwt"];
+            if (!string.IsNullOrEmpty(jwtToken))
                 return RedirectToPage("/Notions/MyNotions");
 
             return Page();

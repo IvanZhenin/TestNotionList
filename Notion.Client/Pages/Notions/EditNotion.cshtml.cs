@@ -7,7 +7,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Notion.Client.Pages.Notions
 {
-    [Authorize]
     public class EditNotionModel : PageModel
     {
         private readonly UserNotionManager.UserNotionManagerClient _userNotionClient;
@@ -24,14 +23,19 @@ namespace Notion.Client.Pages.Notions
 
         [BindProperty]
         public bool NotionIsCompleted { get; set; }
-
-        public void OnGet()
+        public IActionResult OnGet()
         {
+            var token = Request.Cookies["Jwt"];
+            if (string.IsNullOrEmpty(token))
+                return RedirectToPage("/Authentication/Login");
+
             NotionId = TempData["NotionId"]?.ToString() ?? string.Empty;
             NotionText = TempData["NotionText"] as string ?? string.Empty;
             NotionIsCompleted = TempData["NotionIsCompleted"]?.ToString()?.ToLower() != "false";
-        }
 
+            return Page();
+        }
+      
         public async Task<IActionResult> OnPostAsync()
         {
             try

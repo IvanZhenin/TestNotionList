@@ -6,7 +6,6 @@ using Notion.Protos;
 
 namespace Notion.Client.Pages.Notions
 {
-    [Authorize]
     public class CreateNewNotionModel : PageModel
     {
         private readonly UserNotionManager.UserNotionManagerClient _userNotionClient;
@@ -17,6 +16,15 @@ namespace Notion.Client.Pages.Notions
 
         [BindProperty]
         public string NotionText { get; set; }
+
+        public IActionResult OnGet()
+        {
+            var token = Request.Cookies["Jwt"];
+            if (string.IsNullOrEmpty(token))
+                return RedirectToPage("/Authentication/Login");
+
+            return Page();
+        }
 
         public async Task<IActionResult> OnPostAsync() 
         {

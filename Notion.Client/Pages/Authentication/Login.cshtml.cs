@@ -24,7 +24,8 @@ namespace Notion.Client.Pages.Authentication
 
         public IActionResult OnGet()
         {
-            if (User.Identity?.IsAuthenticated == true)
+            var jwtToken = Request.Cookies["Jwt"];
+            if (!string.IsNullOrEmpty(jwtToken))
                 return RedirectToPage("/Notions/MyNotions");
             
             return Page();
@@ -41,28 +42,13 @@ namespace Notion.Client.Pages.Authentication
                 });
 
                 string token = authRequest.Token;
-                var jwtHandler = new JwtSecurityTokenHandler();
-                var jsonToken = jwtHandler.ReadToken(token) as JwtSecurityToken
-                    ?? throw new Exception();
-
-                var userId = jsonToken.Payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-                var userLogin = jsonToken.Payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
-
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, userId.ToString() ?? throw new Exception()),
-                    new Claim(ClaimTypes.Name, userLogin.ToString() ?? throw new Exception()),
-                };
-
+               
                 Response.Cookies.Append("Jwt", token, new CookieOptions
                 {
                     Expires = DateTime.Now.AddDays(1),
                     HttpOnly = true,
                     Secure = true
                 });
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                 return RedirectToPage("/Notions/MyNotions");
             }

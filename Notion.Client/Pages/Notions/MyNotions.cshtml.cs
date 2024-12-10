@@ -9,7 +9,6 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Notion.Client.Pages.Notions
 {
-    [Authorize]
     public class MyNotionsModel : PageModel
     {
         private readonly UserNotionManager.UserNotionManagerClient _userNotionClient;
@@ -51,7 +50,7 @@ namespace Notion.Client.Pages.Notions
             }
             catch (Exception) 
             {
-                await OnPostLogout();
+                OnPostLogout();
             }
         }
 
@@ -83,10 +82,9 @@ namespace Notion.Client.Pages.Notions
             }
         }
 
-        public async Task<IActionResult> OnPostLogout()
+        public IActionResult OnPostLogout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
+            Response.Cookies.Delete("Jwt");
             return RedirectToPage("/Authentication/Login");
         }
     }
