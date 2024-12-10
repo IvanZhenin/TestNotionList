@@ -45,7 +45,7 @@ namespace Notion.Client.Pages.Authentication
                
                 Response.Cookies.Append("Jwt", token, new CookieOptions
                 {
-                    Expires = DateTime.Now.AddDays(1),
+                    Expires = DateTime.Now.AddMinutes(30),
                     HttpOnly = true,
                     Secure = true
                 });
